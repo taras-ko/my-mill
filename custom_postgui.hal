@@ -2,3 +2,69 @@
 # The commands in this file are run after the AXIS GUI (including PyVCP panel) starts
 
 sets spindle-at-speed true
+
+# Joystick
+
+# load joyhandle component and attach to threads (in this case 3 instances)
+loadrt joyhandle count=4
+addf joyhandle.0 servo-thread   # x
+addf joyhandle.1 servo-thread   # y
+addf joyhandle.2 servo-thread   # z
+addf joyhandle.3 servo-thread   # spindle-speed
+
+# Not foun
+setp halui.jog-speed   1500	# desired maximum jog speed mm/min
+
+# --Start-- These parameters ara used to set up joyhandle
+
+#Not found
+setp halui.jog-deadband   0.	# important: default value is 0.2, that would override joyhandle.deadband
+
+setp joyhandle.0.power 3.	# select nonlinearity to handele low jog values
+setp joyhandle.1.power 3.
+setp joyhandle.2.power 4.	# in my case the z-axis is set up more sensitive
+setp joyhandle.3.power 4.
+
+setp joyhandle.0.deadband 0.1
+setp joyhandle.1.deadband 0.1
+setp joyhandle.2.deadband 0.1
+setp joyhandle.3.deadband 0.1
+setp joyhandle.0.scale  1.	
+setp joyhandle.1.scale -1.	# negative values invert jogging
+setp joyhandle.2.scale -0.75    # in my case the z-axis is scaled to lower speed
+setp joyhandle.3.scale -1.	
+# --End--
+
+# connect hal_input to halui via joyhandle (in case use your own axes-names)
+
+net velX input.0.abs-x-position => joyhandle.0.in
+net velXout joyhandle.0.out => halui.jog.0.analog
+
+net velY input.0.abs-y-position => joyhandle.1.in
+net velYout joyhandle.1.out => halui.jog.1.analog
+
+net velZ input.0.abs-rz-position => joyhandle.2.in
+net velZout joyhandle.2.out => halui.jog.2.analog
+
+# Spindle
+#loadrt threads name1=floating-thread period1=1000000 fp1=1
+loadrt conv_float_s32 count=1
+loadrt conv_s32_bit count=1
+
+addf conv-float-s32.0 servo-thread
+addf conv-s32-bit.0 servo-thread
+
+#net velX input.0.abs-z-position => joyhandle.0.in
+#net velXout joyhandle.0.out => halui.jog.0.analog
+
+#net spindleRPM input.0.abs-rz-position => joyhandle.3.in
+net spindleRPMout joyhandle.3.out => conv-float-s32.0.in
+net spindles32toBit conv-float-s32.0.out => conv-s32-bit.0.in
+net spindlesIncrease conv-s32-bit.0.out => halui.spindle.increase # rising edge increase by 100
+
+# [BUTTON-SAMPLES] use your own joypad pin-names
+#One button sample
+net spindleOff input.0.btn-thumb2 => halui.spindle.stop
+#net spindleOn input.0.btn-trigger => halui.spindle.start
+
+

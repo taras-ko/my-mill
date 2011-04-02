@@ -1,0 +1,22 @@
+g28 z20 (tool up)
+g28 (goto change tool origin)
+
+m0 (change tool)
+
+(measure next tool)
+g30 (above switch)
+g49 (measure without the last tool's offset)
+g38.2 z-7 f300 (fast goto probe button)
+g91 g0z5 (off the switch)
+g38.2 z-7 f50 (slowly mesaure too length)
+g91 g0 z5 (off the switch)
+g43.1 z[#5063-#1000] (set new tool offset)
+(print,new length is #5063)
+g30 z20 (tool up)
+g90 (done)
+
+g54
+g0x0y0
+g0z10
+
+m2

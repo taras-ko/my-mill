@@ -1,0 +1,19 @@
+g21 g90 
+g49
+
+g28 (goto change tool origin)
+
+m0 (change tool)
+
+(measure reference tool)
+g30 (above switch)
+g38.2 z-7 f300 (fast goto probe button)
+g91 g0z5 (off the switch)
+g38.2 z-7 f50 (slowly mesaure too length)
+g91 g0z5 (off the switch)
+#1000=#5063 (save reference tool length)
+(print,reference length is #1000)
+g90 (done)
+
+(exit with tool length offset still in effect, in case we want to use MDI)
+m2

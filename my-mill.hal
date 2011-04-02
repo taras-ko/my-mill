@@ -33,12 +33,12 @@ net spindle-at-speed    => motion.spindle-at-speed
 
 net probe-in => motion.probe-input
 
-net xstep           => parport.0.pin-01-out
+net ystep           => parport.0.pin-01-out
 setp parport.0.pin-01-out-reset 1
-net xdir            => parport.0.pin-02-out
-net ystep           => parport.0.pin-03-out
+net ydir            => parport.0.pin-02-out
+net xstep           => parport.0.pin-03-out
 setp parport.0.pin-03-out-reset 1
-net ydir            => parport.0.pin-04-out
+net xdir            => parport.0.pin-04-out
 net zstep           => parport.0.pin-05-out
 setp parport.0.pin-05-out-reset 1
 net zdir            => parport.0.pin-06-out
@@ -50,9 +50,9 @@ setp parport.0.pin-16-out-invert 1
 net xenable         => parport.0.pin-16-out
 net spindle-pwm     => parport.0.pin-17-out
 setp parport.0.pin-17-out-invert 1
-net max-home-z      <= parport.0.pin-10-in-not
-net min-home-y      <= parport.0.pin-11-in-not
-net min-home-x      <= parport.0.pin-12-in-not
+net min-home-y      <= parport.0.pin-10-in-not
+net min-home-x      <= parport.0.pin-11-in-not
+net max-home-z      <= parport.0.pin-12-in-not
 net estop-ext       <= parport.0.pin-13-in
 net probe-in        <= parport.0.pin-15-in-not
 
@@ -106,3 +106,5 @@ net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
 net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
 net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+
+loadusr -W hal_input -KRAL Dual

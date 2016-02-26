@@ -1,0 +1,27 @@
+Servo thread (1ms) MaxJitter 36500 us
+Base thread (25us) MaxJitter 39000 us
+Leadscrew Pitch 17.6388712 mm/rev
+Max Velocity 102 mm/s
+Acc 624 mm/s^2
+Table travel 0:610
+
+X/Y Axis
+Pulley teeth 20.0:1.0
+Leadscrew pitch 2.0 mm/rev
+Y table travel: 580
+X table travel: 640
+speed 110
+
+Z Axis
+3200
+1.0
+1.0:1.0
+2.12666667 mm/rev
+12.0
+750.0
+
+0.0
+0.0 - 81
+0.0
+1.5
+

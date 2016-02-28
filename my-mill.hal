@@ -4,7 +4,6 @@
 loadrt trivkins
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
 loadrt hal_parport cfg="0 out"
-setp parport.0.reset-time 5000
 loadrt stepgen step_type=0,0,0
 loadrt pwmgen output_type=1
 
@@ -12,7 +11,6 @@ addf parport.0.read base-thread
 addf stepgen.make-pulses base-thread
 addf pwmgen.make-pulses base-thread
 addf parport.0.write base-thread
-addf parport.0.reset base-thread
 
 addf stepgen.capture-position servo-thread
 addf motion-command-handler servo-thread
@@ -24,8 +22,8 @@ net spindle-cmd-rpm => pwmgen.0.value
 net spindle-on <= motion.spindle-on => pwmgen.0.enable
 net spindle-pwm <= pwmgen.0.pwm
 setp pwmgen.0.pwm-freq 50.0
-setp pwmgen.0.scale 3500
-setp pwmgen.0.offset 0.114285714286
+setp pwmgen.0.scale 12000
+setp pwmgen.0.offset 0.114
 setp pwmgen.0.dither-pwm true
 net spindle-cmd-rpm     <= motion.spindle-speed-out
 net spindle-cmd-rpm-abs <= motion.spindle-speed-out-abs
@@ -52,17 +50,17 @@ setp parport.0.pin-16-out-invert 1
 net xenable         => parport.0.pin-16-out
 net spindle-pwm     => parport.0.pin-17-out
 setp parport.0.pin-17-out-invert 1
-net min-home-y      <= parport.0.pin-10-in-not
-net max-home-z      <= parport.0.pin-11-in-not
+net max-home-z      <= parport.0.pin-10-in-not
+net min-home-y      <= parport.0.pin-11-in-not
 net min-home-x      <= parport.0.pin-12-in-not
 net estop-ext       <= parport.0.pin-13-in
-#net probe-in        <= parport.0.pin-14-in-not
+net probe-in        <= parport.0.pin-15-in-not
 
 setp stepgen.0.position-scale [AXIS_0]SCALE
 setp stepgen.0.steplen 1
-setp stepgen.0.stepspace 0
-setp stepgen.0.dirhold 59000
-setp stepgen.0.dirsetup 59000
+setp stepgen.0.stepspace 1
+setp stepgen.0.dirhold 22500
+setp stepgen.0.dirsetup 22500
 setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
 net xpos-cmd axis.0.motor-pos-cmd => stepgen.0.position-cmd
 net xpos-fb stepgen.0.position-fb => axis.0.motor-pos-fb
@@ -74,9 +72,9 @@ net min-home-x => axis.0.neg-lim-sw-in
 
 setp stepgen.1.position-scale [AXIS_1]SCALE
 setp stepgen.1.steplen 1
-setp stepgen.1.stepspace 0
-setp stepgen.1.dirhold 59000
-setp stepgen.1.dirsetup 59000
+setp stepgen.1.stepspace 1
+setp stepgen.1.dirhold 22500
+setp stepgen.1.dirsetup 22500
 setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
 net ypos-cmd axis.1.motor-pos-cmd => stepgen.1.position-cmd
 net ypos-fb stepgen.1.position-fb => axis.1.motor-pos-fb
@@ -88,9 +86,9 @@ net min-home-y => axis.1.neg-lim-sw-in
 
 setp stepgen.2.position-scale [AXIS_2]SCALE
 setp stepgen.2.steplen 1
-setp stepgen.2.stepspace 0
-setp stepgen.2.dirhold 59000
-setp stepgen.2.dirsetup 59000
+setp stepgen.2.stepspace 1
+setp stepgen.2.dirhold 22500
+setp stepgen.2.dirsetup 22500
 setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
 net zpos-cmd axis.2.motor-pos-cmd => stepgen.2.position-cmd
 net zpos-fb stepgen.2.position-fb => axis.2.motor-pos-fb

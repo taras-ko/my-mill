@@ -1,0 +1,157 @@
+# standard pinout config file for 3-axis steppers
+# using a parport for I/O
+#
+# first load the parport driver
+loadrt hal_parport cfg="0x0378"
+loadrt pwmgen output_type=0
+#
+# next connect the parport functions to threads
+# read inputs first
+addf parport.0.read base-thread 1
+# write outputs last
+addf parport.0.write base-thread -1
+#
+
+addf pwmgen.make-pulses base-thread
+addf pwmgen.update servo-thread
+
+# finally connect physical pins to the signals
+net Xstep => parport.0.pin-03-out
+net Xdir  => parport.0.pin-02-out
+net Ystep => parport.0.pin-05-out
+net Ydir  => parport.0.pin-04-out
+net Zstep => parport.0.pin-07-out
+net Zdir  => parport.0.pin-06-out
+
+# create a signal for the estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+
+# connect "spindle on" motion controller pin to a physical pin
+net spindle-on motion.spindle-on => parport.0.pin-14-out
+
+net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
+net spindle-on motion.spindle-on => pwmgen.0.enable
+net spindle-pwm pwmgen.0.pwm => parport.0.pin-01-out
+setp pwmgen.0.pwm-freq 50.0
+setp pwmgen.0.scale 3500
+setp pwmgen.0.offset 0.114285714286
+setp pwmgen.0.dither-pwm true
+
+###
+### You might use something like this to enable chopper drives when machine ON
+### the Xen signal is defined in core_stepper.hal
+###
+
+# net Xen => parport.0.pin-01-out
+
+###
+### If you want active low for this pin, invert it like this:
+###
+
+# setp parport.0.pin-01-out-invert 1
+
+###
+### A sample home switch on the X axis (axis 0).  make a signal,
+### link the incoming parport pin to the signal, then link the signal
+### to EMC's axis 0 home switch input pin
+###
+
+# net Xhome parport.0.pin-10-in => axis.0.home-sw-in
+
+###
+### Shared home switches all on one parallel port pin?
+### that's ok, hook the same signal to all the axes, but be sure to 
+### set HOME_IS_SHARED and HOME_SEQUENCE in the ini file.  See the
+### user manual!
+###
+
+# net homeswitches <= parport.0.pin-10-in
+# net homeswitches => axis.0.home-sw-in
+# net homeswitches => axis.1.home-sw-in
+# net homeswitches => axis.2.home-sw-in
+
+###
+### Sample separate limit switches on the X axis (axis 0)
+###
+
+# net X-neg-limit parport.0.pin-11-in => axis.0.neg-lim-sw-in
+# net X-pos-limit parport.0.pin-12-in => axis.0.pos-lim-sw-in
+
+###
+### Just like the shared home switches example, you can wire together
+### limit switches.  Beware if you hit one, EMC will stop but can't tell
+### you which switch/axis has faulted.  Use caution when recovering from this.
+###
+
+# net Xlimits parport.0.pin-13-in => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in
+
+
+# Joystick
+
+loadusr -W hal_input -KRAL Dual
+
+# load joyhandle component and attach to threads (in this case 3 instances)
+loadrt joyhandle count=4
+addf joyhandle.0 servo-thread   # x
+addf joyhandle.1 servo-thread   # y
+addf joyhandle.2 servo-thread   # z
+addf joyhandle.3 servo-thread   # spindle-speed
+
+
+setp halui.jog-speed   1500	# desired maximum jog speed mm/min
+
+# --Start-- These parameters ara used to set up joyhandle
+setp halui.jog-deadband   0.	# important: default value is 0.2, that would override joyhandle.deadband
+setp joyhandle.0.power 3.	# select nonlinearity to handele low jog values
+setp joyhandle.1.power 3.
+setp joyhandle.2.power 4.	# in my case the z-axis is set up more sensitive
+setp joyhandle.3.power 4.
+
+setp joyhandle.0.deadband 0.1
+setp joyhandle.1.deadband 0.1
+setp joyhandle.2.deadband 0.1
+setp joyhandle.3.deadband 0.1
+setp joyhandle.0.scale  1.	
+setp joyhandle.1.scale -1.	# negative values invert jogging
+setp joyhandle.2.scale -0.75    # in my case the z-axis is scaled to lower speed
+setp joyhandle.3.scale -1.	
+# --End--
+
+# connect hal_input to halui via joyhandle (in case use your own axes-names)
+#net velX input.0.abs-rz-position => joyhandle.0.in
+#net velXout joyhandle.0.out => halui.jog.0.analog
+#net velY input.0.abs-z-position => joyhandle.1.in
+#net velYout joyhandle.1.out => halui.jog.1.analog
+
+#net velZ input.0.abs-y-position => joyhandle.2.in
+#net velZout joyhandle.2.out => halui.jog.2.analog
+
+# Spindle
+#loadrt threads name1=floating-thread period1=1000000 fp1=1
+loadrt conv_float_s32 count=1
+loadrt conv_s32_bit count=1
+
+addf conv-float-s32.0 servo-thread
+addf conv-s32-bit.0 servo-thread
+
+net spindleRPM input.0.abs-rz-position => joyhandle.3.in
+net spindleRPMout joyhandle.3.out => conv-float-s32.0.in
+net spindles32toBit conv-float-s32.0.out => conv-s32-bit.0.in
+net spindlesIncrease conv-s32-bit.0.out => halui.spindle.increase # rising edge increase by 100
+
+# connect hal_joypad directly to halui without joyhandle (in case use your own axes-names)
+#net velX joypad.axis.3 => halui.jog.0.analog
+#net velY joypad.axis.2 => halui.jog.1.analog
+#net velZ joypad.axis.1 => halui.jog.2.analog
+
+
+# [BUTTON-SAMPLES] use your own joypad pin-names
+#One button sample
+#net spindleOff input.0.btn-thumb2 => halui.spindle.stop
+#net spindleOn input.0.btn-trigger => halui.spindle.start
+
+

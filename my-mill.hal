@@ -4,7 +4,7 @@
 loadrt trivkins
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
 loadrt hal_parport cfg="0 out"
-loadrt stepgen step_type=0,0,0
+loadrt stepgen step_type=0,0,0,0,0,0
 loadrt pwmgen output_type=1
 
 addf parport.0.read base-thread
@@ -43,9 +43,12 @@ net zstep           => parport.0.pin-05-out
 setp parport.0.pin-05-out-reset 1
 net zdir            => parport.0.pin-06-out
 setp parport.0.pin-06-out-invert 1
-net astep           => parport.0.pin-07-out
+net bstep           => parport.0.pin-07-out
 setp parport.0.pin-07-out-reset 1
-net adir            => parport.0.pin-08-out
+net bdir            => parport.0.pin-08-out
+net cstep           => parport.0.pin-09-out
+setp parport.0.pin-09-out-reset 1
+net cdir            => parport.0.pin-14-out
 setp parport.0.pin-16-out-invert 1
 net xenable         => parport.0.pin-16-out
 net spindle-pwm     => parport.0.pin-17-out
@@ -97,6 +100,30 @@ net zdir <= stepgen.2.dir
 net zenable axis.2.amp-enable-out => stepgen.2.enable
 net max-home-z => axis.2.home-sw-in
 net max-home-z => axis.2.pos-lim-sw-in
+
+setp stepgen.4.position-scale [AXIS_4]SCALE
+setp stepgen.4.steplen 1
+setp stepgen.4.stepspace 1
+setp stepgen.4.dirhold 22500
+setp stepgen.4.dirsetup 22500
+setp stepgen.4.maxaccel [AXIS_4]STEPGEN_MAXACCEL
+net bpos-cmd axis.4.motor-pos-cmd => stepgen.4.position-cmd
+net bpos-fb stepgen.4.position-fb => axis.4.motor-pos-fb
+net bstep <= stepgen.4.step
+net bdir <= stepgen.4.dir
+net benable axis.4.amp-enable-out => stepgen.4.enable
+
+setp stepgen.5.position-scale [AXIS_5]SCALE
+setp stepgen.5.steplen 1
+setp stepgen.5.stepspace 1
+setp stepgen.5.dirhold 22500
+setp stepgen.5.dirsetup 22500
+setp stepgen.5.maxaccel [AXIS_5]STEPGEN_MAXACCEL
+net cpos-cmd axis.5.motor-pos-cmd => stepgen.5.position-cmd
+net cpos-fb stepgen.5.position-fb => axis.5.motor-pos-fb
+net cstep <= stepgen.5.step
+net cdir <= stepgen.5.dir
+net cenable axis.5.amp-enable-out => stepgen.5.enable
 
 net estop-out <= iocontrol.0.user-enable-out
 net estop-ext => iocontrol.0.emc-enable-in

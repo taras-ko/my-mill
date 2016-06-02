@@ -1,0 +1,50 @@
+<!-- SEG 1-Aug-2015 adding a cycle timer. Also see changes in custom_postgui.hal -->
+<pyvcp>
+<hbox>
+<label>
+<text>"Duration"</text>
+<font>("Helvetica",24)</font>
+</label>
+<u32>
+<halpin>"hours"</halpin>
+<font>("Helvetica",24)</font>
+<format>"2d"</format>
+</u32>
+<label>
+<text>":"</text>
+<font>("Helvetica",24)</font>
+</label>
+<u32>
+<halpin>"minutes"</halpin>
+<font>("Helvetica",24)</font>
+<format>"2d"</format>
+</u32>
+<label>
+<text>":"</text>
+<font>("Helvetica",24)</font>
+</label>
+<u32>
+<halpin>"seconds"</halpin>
+<font>("Helvetica",24)</font>
+<format>"2d"</format>
+</u32>
+</hbox>
+<bar>
+	<halpin>"progress-bar"</halpin>
+	<min_>0</min_>
+	<max_>100</max_>
+	<bgcolor>"grey"</bgcolor>
+	<fillcolor>"red"</fillcolor>
+</bar>
+<vbox>
+<s32>
+<halpin>"program-length"</halpin>
+<font>("Helvetica",24)</font>
+</s32>
+<s32>
+<halpin>"current-line"</halpin>
+<font>("Helvetica",24)</font>
+</s32>
+</vbox>
+</pyvcp>
+<!-- end cycle timer -->

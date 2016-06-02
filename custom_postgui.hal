@@ -117,3 +117,17 @@ net spindleRPMout joyhandle.3.out => conv-float-s32.0.in
 net spindles32toBit conv-float-s32.0.out => conv-s32-bit.0.in
 net spindlesIncrease conv-s32-bit.0.out => halui.spindle.increase # rising edge increase by 100
 
+
+#Hooking up cycle timer
+loadrt time
+loadrt not
+addf time.0 servo-thread
+addf not.0 servo-thread
+net prog-running not.0.in <= halui.program.is-idle
+net cycle-timer time.0.start <= not.0.out
+net cycle-seconds timerpanel.seconds <= time.0.seconds
+net cycle-minutes timerpanel.minutes <= time.0.minutes
+net cycle-hours timerpanel.hours <= time.0.hours
+net progress timerpanel.progress-bar <= gmoccapy.program.progress
+net length timerpanel.program-length <= gmoccapy.program.length
+net current timerpanel.current-line <= gmoccapy.program.current-line

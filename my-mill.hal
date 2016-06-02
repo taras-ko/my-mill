@@ -135,3 +135,5 @@ net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 
 loadusr -W hal_input -KRAL Dual
+
+loadusr -Wn timerpanel pyvcp -c timerpanel timerpanel.xml
